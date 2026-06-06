@@ -1,0 +1,507 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.tna{padding:1rem 0;font-family:var(--font-sans);font-size:14px}
+.top-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.875rem 1rem}
+.stat-label{font-size:12px;color:var(--color-text-tertiary);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.filters{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.fbtn{font-size:12px;padding:5px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.fbtn.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary)}
+.week{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:10px;overflow:hidden}
+.week-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:var(--color-background-primary)}
+.week-hdr:hover{background:var(--color-background-secondary)}
+.week-left{display:flex;align-items:center;gap:10px}
+.phase-pill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:var(--border-radius-md);letter-spacing:.5px;white-space:nowrap}
+.p1-pill{background:#E1F5EE;color:#0F6E56}
+.p2-pill{background:#E6F1FB;color:#185FA5}
+.p3-pill{background:#FAECE7;color:#853C1D}
+.week-info{}
+.week-num{font-size:11px;color:var(--color-text-tertiary);letter-spacing:.5px;margin-bottom:2px}
+.week-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.week-obj{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.chev{font-size:18px;color:var(--color-text-tertiary);transition:transform .2s}
+.chev.open{transform:rotate(180deg)}
+.week-body{border-top:0.5px solid var(--color-border-tertiary);display:none}
+.explanation{padding:14px 16px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.exp-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.exp-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px}
+.exp-card-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase}
+.exp-card-body{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.focus-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.focus-tag{font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.days-section{padding:0}
+.day-row{display:grid;grid-template-columns:80px 1fr;gap:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.day-row:last-child{border-bottom:none}
+.day-label{padding:10px 12px;font-size:12px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary);border-right:0.5px solid var(--color-border-tertiary)}
+.day-tasks{padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.task-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.tdot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.tprod{background:#1D9E75}.tcont{background:#378ADD}.tplat{background:#D85A30}.tout{background:#7F77DD}.tadm{background:#888780}
+.task-time{font-size:11px;color:var(--color-text-tertiary);white-space:nowrap;margin-left:auto;padding-left:8px;flex-shrink:0}
+.milestones{padding:10px 16px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;gap:5px}
+.ms-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+</style>
+
+<div class="tna">
+<h2 class="sr-only">BÜNDLE.CO 90-day time and action calendar with detailed week-by-week explanations</h2>
+
+<div class="top-stats">
+  <div class="stat"><div class="stat-label">Month 1 target</div><div class="stat-val">$100–200</div><div class="stat-sub">First sales · platform setup</div></div>
+  <div class="stat"><div class="stat-label">Month 2 target</div><div class="stat-val">$400–700</div><div class="stat-sub">Fiverr + Etsy combined</div></div>
+  <div class="stat"><div class="stat-label">Month 3 target</div><div class="stat-val">$800–1,200</div><div class="stat-sub">All 3 streams active</div></div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot tprod"></div>Product build</div>
+  <div class="leg-item"><div class="leg-dot tcont"></div>Content</div>
+  <div class="leg-item"><div class="leg-dot tplat"></div>Platform setup</div>
+  <div class="leg-item"><div class="leg-dot tout"></div>Outreach</div>
+  <div class="leg-item"><div class="leg-dot tadm"></div>Admin / review</div>
+  <div class="leg-item"><i class="ti ti-trophy" style="font-size:14px;color:#BA7517" aria-hidden="true"></i>Milestone</div>
+</div>
+
+<div class="filters">
+  <button class="fbtn on" onclick="filter('all',this)">All phases</button>
+  <button class="fbtn" onclick="filter('p1',this)">Phase 1 — Foundation</button>
+  <button class="fbtn" onclick="filter('p2',this)">Phase 2 — Expansion</button>
+  <button class="fbtn" onclick="filter('p3',this)">Phase 3 — Scale</button>
+</div>
+
+<div id="wlist"></div>
+</div>
+
+<script>
+const W=[
+{id:"w1",phase:"p1",num:"Week 1",title:"Brand setup and platforms live",obj:"Gmail · Instagram · Etsy · Gumroad · first 9 posts",
+explanation:{
+  why:"Nothing can happen until your brand has a home. Week 1 is the only week where you spend more time on setup than creation. Every hour here is a one-time cost that unlocks everything that follows. You cannot post content without an account. You cannot make sales without a listing. You cannot get outreach replies without a profile that looks real.",
+  what:"By end of Week 1 you will have a professional Instagram profile with a complete 9-post grid, an Etsy shop with your first listing live at $36, a Gumroad page as a second income point, and a Behance account ready for your portfolio. Your hoodie tech pack — which is already built — becomes your first digital product.",
+  outcome:"End of week you have a real business presence. Anyone who finds BÜNDLE.CO this week sees a complete, professional brand — not an empty account. The 9-post grid is critical because Instagram profiles with fewer than 9 posts lose visitors immediately. First impressions are permanent."
+},
+focus:["Brand identity live","First listing published","Grid complete","Gumroad active"],
+days:[
+  {label:"Day 1",tasks:[
+    {type:"plat",text:"Create Gmail: hello@bundleco.studio",time:"20 min"},
+    {type:"plat",text:"Create Instagram @bundle.co — set bio exactly as brand kit specifies",time:"30 min"},
+    {type:"plat",text:"Set profile picture — BDL monogram black circle in Canva",time:"10 min"},
+    {type:"plat",text:"Open Etsy shop: BundleCoStudio — upload branded banner",time:"45 min"},
+  ]},
+  {label:"Day 2",tasks:[
+    {type:"plat",text:"Write Etsy shop description and set policies — digital downloads, no refunds",time:"30 min"},
+    {type:"prod",text:"Export hoodie tech pack — PDF, DOCX, AI versions",time:"30 min"},
+    {type:"plat",text:"Create 5 Etsy listing thumbnail images in Canva",time:"60 min"},
+  ]},
+  {label:"Day 3",tasks:[
+    {type:"plat",text:"Publish hoodie tech pack on Etsy at $36",time:"30 min"},
+    {type:"plat",text:"Open Gumroad — list same pack at $42",time:"30 min"},
+    {type:"cont",text:"Create Instagram post 1 — tech pack cover page closeup",time:"45 min"},
+  ]},
+  {label:"Day 4",tasks:[
+    {type:"cont",text:"Create Instagram post 2 — BOM table detail shot",time:"45 min"},
+    {type:"cont",text:"Create Instagram post 3 — 'What is a tech pack?' carousel, 5 slides",time:"60 min"},
+    {type:"plat",text:"Schedule all 3 posts in Meta Business Suite",time:"15 min"},
+  ]},
+  {label:"Day 5",tasks:[
+    {type:"cont",text:"Create Instagram posts 4 and 5 — fabrication page and POM detail",time:"90 min"},
+    {type:"out",text:"Identify 20 target brand accounts on Instagram — save to a list",time:"45 min"},
+  ]},
+  {label:"Day 6",tasks:[
+    {type:"cont",text:"Create Instagram posts 6, 7, 8, 9 — complete the first grid",time:"90 min"},
+    {type:"out",text:"Comment genuinely on 10 brand owner posts — no pitching, just value",time:"30 min"},
+    {type:"plat",text:"Set up Behance account with BÜNDLE.CO branding",time:"30 min"},
+  ]},
+  {label:"Day 7",tasks:[
+    {type:"adm",text:"Week 1 review — log followers, Etsy views, any DM enquiries",time:"30 min"},
+    {type:"adm",text:"Plan Week 2 content and tasks in detail",time:"30 min"},
+  ]},
+],
+milestones:["Brand live across Gmail, Instagram, Etsy, Gumroad","First Etsy listing published at $36","First 9-post Instagram grid complete"]},
+
+{id:"w2",phase:"p1",num:"Week 2",title:"T-shirt pack and first outreach",obj:"T-shirt tech pack built · 10 DMs sent · Behance live",
+explanation:{
+  why:"Week 2 shifts from setup to production. The hoodie pack proves you can build a tech pack — now you need to show range. A T-shirt is the second most searched garment on Etsy after hoodies, and it is significantly faster to build because the construction is simpler. Building it this week also gives you a second product to reference in your outreach and a second listing driving Etsy traffic.",
+  what:"You will complete and list the T-shirt tech pack, send your first 10 DMs to brand owners, and publish your Behance portfolio using the hoodie pack as the first case study. The DMs at this stage are not hard sales pitches — they are genuine introductions that position you as someone who knows what they are doing. The goal is to start conversations, not close deals.",
+  outcome:"By end of Week 2 you have two products on Etsy, a live portfolio on Behance, and 10 conversations started. Even if none of those 10 DMs convert, you have begun building the visibility that leads to your first paid client in Week 3 or 4."
+},
+focus:["T-shirt pack built","10 DMs sent","Behance live","Second listing"],
+days:[
+  {label:"Day 8",tasks:[
+    {type:"prod",text:"Start T-shirt tech pack — cover page and fabrication page",time:"90 min"},
+    {type:"out",text:"Send first 5 DMs to brand owner accounts on target list",time:"30 min"},
+    {type:"cont",text:"Post daily Instagram story — show your process behind the scenes",time:"15 min"},
+  ]},
+  {label:"Day 9",tasks:[
+    {type:"prod",text:"T-shirt tech pack — BOM page",time:"90 min"},
+    {type:"out",text:"Comment on 10 brand owner posts genuinely",time:"30 min"},
+    {type:"cont",text:"Post scheduled Instagram content",time:"20 min"},
+  ]},
+  {label:"Day 10",tasks:[
+    {type:"prod",text:"T-shirt tech pack — POM page, all 15 measurement points",time:"90 min"},
+    {type:"out",text:"Send 5 more DMs to different accounts from the target list",time:"25 min"},
+    {type:"cont",text:"Create 2 Instagram posts for next 2 days",time:"60 min"},
+  ]},
+  {label:"Day 11",tasks:[
+    {type:"prod",text:"T-shirt tech pack — construction notes and QC page",time:"90 min"},
+    {type:"plat",text:"Upload hoodie pack to Behance as first case study with full description",time:"60 min"},
+  ]},
+  {label:"Day 12",tasks:[
+    {type:"prod",text:"Export T-shirt tech pack — PDF, DOCX, AI",time:"30 min"},
+    {type:"plat",text:"List T-shirt pack on Etsy at $36 and Gumroad at $42",time:"45 min"},
+    {type:"cont",text:"Create 3 Instagram posts about the T-shirt pack launch",time:"60 min"},
+  ]},
+  {label:"Day 13",tasks:[
+    {type:"prod",text:"Start Cargo Pants tech pack — cover, fabrication, BOM",time:"120 min"},
+    {type:"out",text:"Reply to any DM responses — keep conversations active",time:"20 min"},
+  ]},
+  {label:"Day 14",tasks:[
+    {type:"adm",text:"Week 2 review — log DMs sent, replies, Etsy views, follower count",time:"30 min"},
+    {type:"adm",text:"Note which Instagram content performed best this week",time:"15 min"},
+  ]},
+],
+milestones:["T-shirt tech pack live — second product on Etsy","10 DMs sent total","Behance portfolio published"]},
+
+{id:"w3",phase:"p1",num:"Week 3",title:"Fiverr live and Cargo pack complete",obj:"3 Fiverr gigs open · Cargo pack listed · GSM guide started",
+explanation:{
+  why:"Week 3 opens your active service channel. Fiverr is where brands who cannot afford a full agency but need custom work will find you. Opening three gigs simultaneously — tech pack, CAD drawing, size chart — means you appear for three different search terms and attract three different types of buyer. The GSM Guide ebook is your first education product, which is a completely different product category that attracts fashion students and beginner brand owners who are not yet ready for a full tech pack.",
+  what:"You will complete and list the Cargo Pants pack, open your three Fiverr gigs with your hoodie pack as the portfolio image, build and list the Fabric GSM Guide ebook, and start the Bomber Jacket pack. The ebook is built in Canva — 15 pages covering every GSM weight used in streetwear garments. It is a fast build that opens a second buyer segment.",
+  outcome:"By end of Week 3 you have four products on Etsy, three Fiverr gigs live, and your first education product generating passive income. You are now discoverable on two platforms with five different listings. The GSM Guide priced at $16 acts as a low-barrier entry product that can convert buyers into customers for your higher-priced tech packs."
+},
+focus:["Fiverr 3 gigs","4 products listed","GSM ebook","Bomber started"],
+days:[
+  {label:"Day 15",tasks:[
+    {type:"prod",text:"Complete Cargo Pants tech pack — POM, construction, QC",time:"90 min"},
+    {type:"plat",text:"Open Fiverr account @bundleco",time:"20 min"},
+    {type:"plat",text:"Set up Fiverr Gig 1: Tech Pack Creation — Basic $80, Standard $150, Premium $250",time:"60 min"},
+  ]},
+  {label:"Day 16",tasks:[
+    {type:"plat",text:"Set up Fiverr Gig 2: Garment CAD Drawing — $40, $80, $140",time:"60 min"},
+    {type:"plat",text:"Set up Fiverr Gig 3: Size Chart and Grading — $35, $70, $120",time:"45 min"},
+    {type:"prod",text:"Export and list Cargo Pants pack on Etsy and Gumroad",time:"30 min"},
+  ]},
+  {label:"Day 17",tasks:[
+    {type:"prod",text:"Start Fabric GSM Guide ebook in Canva — 15 pages",time:"120 min"},
+    {type:"cont",text:"Post: '3 mistakes new brands make before going to factory'",time:"45 min"},
+    {type:"out",text:"Send 5 DMs",time:"20 min"},
+  ]},
+  {label:"Day 18",tasks:[
+    {type:"prod",text:"Complete Fabric GSM Guide ebook",time:"120 min"},
+    {type:"cont",text:"Create 3 posts about the GSM guide for launch",time:"60 min"},
+  ]},
+  {label:"Day 19",tasks:[
+    {type:"plat",text:"List GSM Guide on Etsy at $16 and Gumroad at $18",time:"30 min"},
+    {type:"prod",text:"Start Bomber Jacket tech pack — cover and fabrication",time:"90 min"},
+    {type:"out",text:"Send 5 DMs",time:"20 min"},
+  ]},
+  {label:"Day 20",tasks:[
+    {type:"prod",text:"Bomber Jacket tech pack — BOM and POM pages",time:"90 min"},
+    {type:"cont",text:"Batch create 5 posts for next week",time:"90 min"},
+  ]},
+  {label:"Day 21",tasks:[
+    {type:"adm",text:"Week 3 review — Fiverr impressions, 4-listing Etsy performance, any enquiries",time:"30 min"},
+    {type:"adm",text:"Log all metrics",time:"15 min"},
+  ]},
+],
+milestones:["3 Fiverr gigs live","4 products on Etsy","Fabric GSM Guide — first education product"]},
+
+{id:"w4",phase:"p1",num:"Week 4",title:"First client and Startup Kit planning",obj:"Bomber pack listed · First client conversation · Month 1 review",
+explanation:{
+  why:"Week 4 is where the first 3 weeks of groundwork pays off. By now you have four products, three Fiverr gigs, an active Instagram, and a Behance portfolio. You have enough proof to confidently approach brands and pitch a paid project. The first client conversation is the most important thing this week — not because the money is large, but because completing a real project gives you a testimonial, a case study, and the confidence that comes from knowing someone trusted you with their brand.",
+  what:"You will complete and list the Bomber Jacket pack, send your final DMs for the month, apply to your first Upwork jobs, and have your first real client conversation. You will also map out the Fashion Startup Kit — your highest-ticket future product — and close Month 1 with a full performance review that guides everything in Month 2.",
+  outcome:"Month 1 closes with five products live, a Fiverr profile open, Upwork proposals sent, and ideally a first paid project confirmed or in conversation. The monthly review is not optional — it is how you find out what the market is actually responding to versus what you assumed it would respond to."
+},
+focus:["First client","Bomber listed","Upwork started","Month 1 review"],
+days:[
+  {label:"Day 22",tasks:[
+    {type:"prod",text:"Complete Bomber Jacket tech pack — construction and QC",time:"90 min"},
+    {type:"out",text:"Follow up on any DM conversations from weeks 1 to 3",time:"20 min"},
+  ]},
+  {label:"Day 23",tasks:[
+    {type:"prod",text:"Export and list Bomber Jacket on Etsy and Gumroad",time:"30 min"},
+    {type:"cont",text:"Post: 'Inside a $300 tech pack — what factories actually need'",time:"45 min"},
+    {type:"out",text:"Apply to 3 Upwork jobs with personalised proposals",time:"45 min"},
+  ]},
+  {label:"Day 24",tasks:[
+    {type:"prod",text:"Map out Fashion Startup Kit — contents, pricing, bundle structure",time:"60 min"},
+    {type:"out",text:"Send 5 final DMs for the month",time:"20 min"},
+    {type:"plat",text:"Upload Cargo and Bomber packs to Behance as case studies",time:"60 min"},
+  ]},
+  {label:"Day 25",tasks:[
+    {type:"out",text:"First client call or DM negotiation — target first paid project",time:"60 min"},
+    {type:"cont",text:"Create content batch — 5 posts for Week 5",time:"90 min"},
+  ]},
+  {label:"Day 26",tasks:[
+    {type:"prod",text:"Start Windbreaker tech pack if client work permits",time:"90 min"},
+    {type:"adm",text:"Begin Month 1 full review — log all metrics",time:"60 min"},
+  ]},
+  {label:"Days 27–30",tasks:[
+    {type:"adm",text:"Month 1 report: revenue by platform, followers, DMs, Etsy views, conversion",time:"60 min"},
+    {type:"adm",text:"Identify what worked and what to adjust for Month 2",time:"30 min"},
+    {type:"adm",text:"Plan Month 2 week by week in detail",time:"60 min"},
+  ]},
+],
+milestones:["5 products live on Etsy","First Upwork proposals sent","Month 1 complete — report back to CEO"]},
+
+{id:"w5",phase:"p2",num:"Week 5",title:"First Fiverr delivery and Windbreaker pack",obj:"First gig delivered · 6th product · Upwork push",
+explanation:{
+  why:"Your first Fiverr delivery is the most important transaction of the entire 90 days — not for the money but for the review. A 5-star Fiverr review from a real buyer is the difference between getting ignored and getting enquiries. Everything on Fiverr depends on social proof and the algorithm rewards sellers who deliver well early. This week, if a Fiverr gig comes in, it takes absolute priority over every other task.",
+  what:"You will complete the Windbreaker tech pack, deliver your first Fiverr gig if one has come in, build and list the Grading and Size Chart template, apply to 5 Upwork jobs, and create an educational carousel about how grading works. The grading template opens your fourth product category and attracts a different buyer — brands who already have a tech pack but need to grade it across sizes.",
+  outcome:"End of Week 5 you have your first Fiverr review, six products listed, and a grading template that attracts a new buyer segment. You are now generating income from multiple product types and your Upwork profile is actively proposing. The compounding effect of multiple listings starts to become visible in your Etsy stats this week."
+},
+focus:["Fiverr first review","6th product","Grading template","Upwork proposals"],
+days:[
+  {label:"Days 31–33",tasks:[
+    {type:"prod",text:"Complete Windbreaker tech pack — export and list on all platforms",time:"120 min"},
+    {type:"prod",text:"Deliver first Fiverr gig if active — this is priority over everything else",time:"180 min"},
+    {type:"cont",text:"Post process content from active client work — no brand names",time:"45 min"},
+    {type:"out",text:"Send 5 DMs — focus on brands showing production intent",time:"20 min"},
+  ]},
+  {label:"Days 34–37",tasks:[
+    {type:"prod",text:"Build and complete Grading and Size Chart template",time:"120 min"},
+    {type:"plat",text:"List Grading template on Etsy at $24 and Gumroad at $28",time:"30 min"},
+    {type:"out",text:"Apply to 5 Upwork jobs with personalised proposals",time:"60 min"},
+    {type:"cont",text:"Educational carousel: How grading works — size chart explained",time:"60 min"},
+    {type:"adm",text:"Week 5 review — first revenue report, log every dollar",time:"30 min"},
+  ]},
+],
+milestones:["First Fiverr gig delivered and reviewed","6th product listed","Grading template — new category live"]},
+
+{id:"w6",phase:"p2",num:"Week 6",title:"Sewing pattern and Upwork push",obj:"Sewing pattern live · Creative Market open · 500 followers",
+explanation:{
+  why:"Sewing patterns are one of the highest-search digital products on Etsy and Creative Market. They attract a different buyer to tech packs — makers, small brands who want to sew samples themselves, fashion students, and independent designers. Opening Creative Market this week gives you a fourth platform and exposes BÜNDLE.CO to a design-savvy audience that has higher average spend than typical Etsy shoppers. The 500 follower target on Instagram is also meaningful this week because at 500 followers your DMs become significantly more credible.",
+  what:"You will build the Hoodie Sewing Pattern Template in PDF format with proper seam allowances and grainlines, open your Creative Market store, list the pattern on both platforms, and push hard on Upwork with 5 more proposals. The T-shirt sewing pattern starts this week so it is ready to list in Week 7.",
+  outcome:"End of Week 6 you have four active platforms generating traffic, a sewing pattern that opens a new buyer segment, and Upwork proposals that should be getting responses by now given the strength of your portfolio. The 500 follower milestone on Instagram is the point at which organic reach starts compounding noticeably."
+},
+focus:["Sewing pattern","Creative Market","500 followers","Upwork close"],
+days:[
+  {label:"Days 38–42",tasks:[
+    {type:"prod",text:"Build Hoodie Sewing Pattern Template — PDF with seam allowances",time:"180 min"},
+    {type:"plat",text:"Open Creative Market store with BÜNDLE.CO branding",time:"60 min"},
+    {type:"plat",text:"List Sewing Pattern on Etsy at $22 and Creative Market",time:"45 min"},
+    {type:"out",text:"Apply to 5 more Upwork jobs — target ongoing retainer clients",time:"45 min"},
+    {type:"out",text:"Send 10 DMs this week — portfolio is now strong enough",time:"40 min"},
+    {type:"cont",text:"Post: 'What is the difference between a sewing pattern and a tech pack'",time:"45 min"},
+  ]},
+  {label:"Days 43–44",tasks:[
+    {type:"prod",text:"Start T-shirt Sewing Pattern Template",time:"90 min"},
+    {type:"adm",text:"Week 6 review — track follower growth toward 500 target",time:"20 min"},
+  ]},
+],
+milestones:["Creative Market store open — 4th platform active","Sewing pattern — 3rd product category","Upwork first client target"]},
+
+{id:"w7",phase:"p2",num:"Week 7",title:"Production documents and Behance authority",obj:"Production bundle live · 5 Behance case studies · 8+ listings",
+explanation:{
+  why:"Production and Manufacturing Documents are the product that attracts the most serious buyers — brands who are actively in production, not just planning it. These buyers spend more, return more often, and refer more clients than any other segment. Publishing five Behance case studies this week is equally important because Behance is indexed by Google, and a well-written case study for 'streetwear tech pack' will start appearing in search results within 30 to 60 days. This is your long-term SEO investment.",
+  what:"You will build a complete Production and Manufacturing Documents bundle containing line planning sheets, QC checklists, factory workflow templates, and production tracking forms. You will also upload two new Behance case studies — bringing your total to five — and post a Reel showing your process which is the highest-reach content format on Instagram.",
+  outcome:"End of Week 7 you have eight or more listings across all platforms, five Behance case studies building authority, and a production documents product that attracts your most valuable buyer segment. Your Fiverr gig should have at least one review by now and Upwork proposals should be converting to interviews."
+},
+focus:["Production bundle","8+ listings","5 Behance cases","Reel content"],
+days:[
+  {label:"Days 45–47",tasks:[
+    {type:"prod",text:"Build Production and Manufacturing Documents bundle — line sheets, QC checklists, factory workflow",time:"180 min"},
+    {type:"plat",text:"Upload 2 new case studies to Behance — 5 total now",time:"60 min"},
+    {type:"cont",text:"Reel: time-lapse of building a tech pack page — highest reach format",time:"45 min"},
+  ]},
+  {label:"Days 48–50",tasks:[
+    {type:"plat",text:"List Production Documents bundle on Etsy at $32 and Gumroad at $36",time:"30 min"},
+    {type:"out",text:"Direct Instagram outreach to 10 brands — stronger offer with full portfolio",time:"40 min"},
+    {type:"adm",text:"Week 7 review — Fiverr rating, Upwork JSS score, Etsy conversion rate",time:"30 min"},
+  ]},
+],
+milestones:["Production documents — 4th product category live","5 Behance case studies published","8+ listings across all platforms"]},
+
+{id:"w8",phase:"p2",num:"Week 8",title:"Fashion Startup Kit and Month 2 close",obj:"Startup Kit launched · Month 2 review · $400+ confirmed",
+explanation:{
+  why:"The Fashion Startup Kit is your highest-ticket product and your most differentiated offering. No one else on Etsy is selling a complete bundle that includes a tech pack, BOM, grading template, fabric guide, and production documents as one cohesive product designed for a brand launching their first collection. Pricing it at $95 on Etsy and $110 on Gumroad positions it clearly above your individual products while offering significant value relative to hiring a freelance technical designer for the same work.",
+  what:"You will compile the Fashion Startup Kit from your existing assets — the hoodie tech pack, T-shirt tech pack, cargo pants tech pack, fabric GSM guide, and a new kit guide document explaining how to use the pack with a factory. The kit guide is the new asset that adds unique value. You will build teaser content for the launch and close Month 2 with a full performance review.",
+  outcome:"End of Month 2 you have your highest-ticket product live, a confirmed monthly revenue of $400 or more, and a clear picture of which products and platforms are working. The Month 2 review is critical because it is the first time you have 30 days of real sales data to base decisions on. Everything in Month 3 is guided by what Month 2 data tells you."
+},
+focus:["Startup Kit $95","Month 2 review","$400 confirmed","Kit guide written"],
+days:[
+  {label:"Days 51–53",tasks:[
+    {type:"prod",text:"Compile Fashion Startup Kit — hoodie, tee, cargo packs bundled",time:"120 min"},
+    {type:"prod",text:"Write kit guide document — how to use the pack with a factory",time:"90 min"},
+    {type:"cont",text:"Teaser content for Startup Kit launch — build anticipation",time:"45 min"},
+  ]},
+  {label:"Days 54–56",tasks:[
+    {type:"prod",text:"Complete and export Fashion Startup Kit — all assets packaged",time:"90 min"},
+    {type:"plat",text:"List Startup Kit on Etsy at $95 and Gumroad at $110",time:"30 min"},
+    {type:"adm",text:"Month 2 full review — revenue, followers, gigs delivered, conversion rates",time:"60 min"},
+  ]},
+],
+milestones:["Fashion Startup Kit launched — highest ticket at $95","Month 2 complete — report back to CEO","$400+ monthly revenue confirmed"]},
+
+{id:"w9",phase:"p3",num:"Week 9",title:"Upwork client and authority content",obj:"Upwork first project · Long-form guide live · 750 followers",
+explanation:{
+  why:"Week 9 is the point where BÜNDLE.CO transitions from a side hustle into a real business with three active revenue streams. The Upwork client is significant because Upwork clients are typically larger brands with bigger budgets and longer projects. One Upwork retainer client can generate more monthly revenue than 10 Etsy sales. The long-form Behance guide published this week is your most important SEO investment — a detailed, well-written guide titled 'From sketch to factory' will rank on Google within 60 to 90 days and generate inbound enquiries without any outreach effort.",
+  what:"You will close your first Upwork client and deliver the project within the week, publish the long-form Behance guide, and post the '10 things your tech pack must include' carousel which is designed to go viral within the streetwear brand community. You will also request testimonials from your completed Fiverr clients this week to strengthen your social proof.",
+  outcome:"End of Week 9 all three revenue streams — Etsy passive, Fiverr active, Upwork premium — are generating income simultaneously. This is the foundation of a scalable business. The 750 follower target on Instagram means your account is large enough to be taken seriously by brands who receive your DMs."
+},
+focus:["Upwork first project","3 streams active","750 followers","Behance guide"],
+days:[
+  {label:"Days 57–59",tasks:[
+    {type:"out",text:"Close first Upwork client — send agreement and begin project",time:"120 min"},
+    {type:"plat",text:"Publish long-form Behance guide: From sketch to factory — the full production process",time:"90 min"},
+    {type:"cont",text:"Instagram carousel: 10 things your tech pack must include",time:"45 min"},
+  ]},
+  {label:"Days 60–63",tasks:[
+    {type:"prod",text:"Deliver Upwork project — priority over all else this week",time:"180 min"},
+    {type:"out",text:"Request testimonials from completed Fiverr clients",time:"15 min"},
+    {type:"adm",text:"Week 9 review — Upwork JSS, Fiverr rating, platform revenue split",time:"20 min"},
+  ]},
+],
+milestones:["Upwork first project delivered","750+ Instagram followers","All 3 revenue streams active simultaneously"]},
+
+{id:"w10",phase:"p3",num:"Week 10",title:"Puffer jacket and student templates",obj:"9th product · Student templates · Raise Fiverr prices",
+explanation:{
+  why:"Raising your Fiverr prices at Week 10 is not optional — it is required. You now have reviews, a portfolio, and a proven delivery record. Staying at $80 for a tech pack when the market will pay $100 or more is leaving money on the table. The student template bundle opens a completely new buyer segment — fashion students and recent graduates who need professional-looking spec sheets for college projects, internship applications, and portfolio presentations. This segment has high volume and low competition.",
+  what:"You will build the Puffer Jacket tech pack, build and list the Fashion Templates for Students bundle, raise your Fiverr prices across all three tiers, and push 15 DMs this week targeting the 1,000 follower milestone. The post announcing you are taking on brand clients is a soft launch of your direct client service — at this point your Instagram following is large enough to generate genuine enquiries from a single post.",
+  outcome:"End of Week 10 you have nine products listed across five platforms, a student buyer segment generating additional passive income, and Fiverr prices that reflect your actual market value. The price raise typically has no negative effect on conversion — buyers who have seen your portfolio will pay the higher price without hesitation."
+},
+focus:["9th product","Student templates","Fiverr prices raised","15 DMs"],
+days:[
+  {label:"Days 64–66",tasks:[
+    {type:"prod",text:"Build Puffer Jacket tech pack — export and list",time:"120 min"},
+    {type:"prod",text:"Start Fashion Templates for Students — spec sheet and range plan bundle",time:"90 min"},
+    {type:"plat",text:"Raise Fiverr prices: Basic $100, Standard $180, Premium $280",time:"15 min"},
+  ]},
+  {label:"Days 67–70",tasks:[
+    {type:"prod",text:"Complete Student Template bundle — export and list on all platforms",time:"90 min"},
+    {type:"cont",text:"Post: BÜNDLE.CO is now taking on 2 brand clients this month",time:"20 min"},
+    {type:"out",text:"15 DMs this week — push toward 1,000 follower milestone",time:"40 min"},
+  ]},
+],
+milestones:["9th product listed","Student templates — new buyer segment","Fiverr rates raised"]},
+
+{id:"w11",phase:"p3",num:"Week 11",title:"Varsity jacket and education ebook",obj:"10th product · Production Bible ebook · 1,000 follower push",
+explanation:{
+  why:"The Production Bible ebook is your most ambitious education product and your most valuable long-term asset. At 25 pages covering terminology, the full production process, factory communication, quality control, and costing, it is a product that fashion students, new brand owners, and even experienced designers will buy because this information is genuinely not available in one place at this quality and price point. The Reel documenting your 90-day journey is your highest-potential viral content — transparent founder stories consistently outperform product content on Instagram.",
+  what:"You will build the Varsity Jacket tech pack, write and design the Fashion Production Bible ebook in Canva at 25 pages priced at $22, post the complete guide to fabric weights in streetwear as an educational carousel, and record and edit the 90-day journey Reel. The combination of the ebook launch and the journey Reel creates a natural content moment that drives both followers and sales simultaneously.",
+  outcome:"End of Week 11 you have ten products listed — a milestone that signals you are running a real product business. The Production Bible ebook at $22 is priced to sell in volume and will become one of your top-performing Etsy listings within 30 days of launch. The journey Reel, if it performs well, can add several hundred followers in a single week."
+},
+focus:["10th product","Production Bible","1,000 followers","Journey Reel"],
+days:[
+  {label:"Days 71–73",tasks:[
+    {type:"prod",text:"Build Varsity Jacket tech pack",time:"120 min"},
+    {type:"prod",text:"Write Fashion Production Bible ebook — 25 pages, terminology and process",time:"150 min"},
+    {type:"cont",text:"Educational carousel: The complete guide to fabric weights in streetwear",time:"45 min"},
+  ]},
+  {label:"Days 74–77",tasks:[
+    {type:"plat",text:"List Varsity pack and Production Bible on all platforms",time:"30 min"},
+    {type:"out",text:"15 DMs this week — 1,000 follower push",time:"40 min"},
+    {type:"cont",text:"Reel: I built 10 tech packs in 90 days — here is what I learned",time:"60 min"},
+  ]},
+],
+milestones:["10 products listed across all platforms","Production Bible ebook live at $22","1,000 follower push underway"]},
+
+{id:"w12",phase:"p3",num:"Week 12",title:"90-day full review and Month 3 close",obj:"Complete audit · $1,000 confirmed · Month 4 plan locked",
+explanation:{
+  why:"Week 12 is the most important week of the entire 90 days — not because of what you build but because of what you learn. The 90-day review tells you definitively which products sell, which platforms convert, which content drives followers, and which outreach methods generate clients. Every assumption you made on Day 1 gets tested against real data. Some things you expected to work will have underperformed. Some things you did not expect will have outperformed. The review is how you find out which is which.",
+  what:"You will conduct a complete audit of every metric — revenue by platform, product performance by listing, Instagram follower growth rate, Etsy conversion rate, Fiverr order completion rate, and Upwork JSS score. You will identify your top three performing products and double down on them in Month 4, identify your bottom three and decide whether to improve or delist them, and build your Month 4 product roadmap based entirely on data. You will also post your 90-day results publicly on Instagram.",
+  outcome:"End of Week 12 you have a confirmed monthly revenue of $800 to $1,200, a clear picture of what BÜNDLE.CO is at Day 90 versus what you planned on Day 1, and a Month 4 plan grounded in real market feedback. Posting your 90-day results on Instagram builds massive credibility — transparency about real numbers is the most powerful brand-building content you can create."
+},
+focus:["Full audit","$1,000 confirmed","Month 4 plan","Results post"],
+days:[
+  {label:"Days 78–80",tasks:[
+    {type:"adm",text:"Full 90-day audit — every metric logged and reviewed",time:"120 min"},
+    {type:"adm",text:"Revenue breakdown by platform — Etsy, Gumroad, Fiverr, Upwork, Creative Market",time:"30 min"},
+    {type:"adm",text:"Product performance — which listings get views and which actually convert",time:"30 min"},
+  ]},
+  {label:"Days 81–84",tasks:[
+    {type:"adm",text:"Top 3 highest performing products identified — double down in Month 4",time:"30 min"},
+    {type:"adm",text:"Bottom 3 identified — improve or delist decision made",time:"20 min"},
+    {type:"prod",text:"Build Month 4 product roadmap based on data not assumptions",time:"60 min"},
+  ]},
+  {label:"Days 85–90",tasks:[
+    {type:"adm",text:"Month 3 final report: revenue, followers, gigs, Upwork JSS, Etsy reviews",time:"60 min"},
+    {type:"adm",text:"Strategic adjustment plan for Month 4 and beyond",time:"60 min"},
+    {type:"cont",text:"Post 90-day results publicly on Instagram — builds massive credibility",time:"45 min"},
+  ]},
+],
+milestones:["90-day review complete — report back to CEO","$800–1,200 monthly revenue confirmed","Month 4 plan locked in"]},
+];
+
+const dotClass={prod:"tprod",cont:"tcont",plat:"tplat",out:"tout",adm:"tadm"};
+
+function render(f){
+  const c=document.getElementById("wlist");
+  c.innerHTML="";
+  W.filter(w=>f==="all"||w.phase===f).forEach(w=>{
+    const pill=w.phase==="p1"?'<span class="phase-pill p1-pill">Phase 1</span>':w.phase==="p2"?'<span class="phase-pill p2-pill">Phase 2</span>':'<span class="phase-pill p3-pill">Phase 3</span>';
+    const e=w.explanation;
+    const focusTags=w.focus.map(f=>`<span class="focus-tag">${f}</span>`).join("");
+    const daysHtml=w.days.map(d=>`
+      <div class="day-row">
+        <div class="day-label">${d.label}</div>
+        <div class="day-tasks">${d.tasks.map(t=>`
+          <div class="task-item">
+            <div class="tdot ${dotClass[t.type]||"tadm"}"></div>
+            <span>${t.text}</span>
+            <span class="task-time">${t.time}</span>
+          </div>`).join("")}
+        </div>
+      </div>`).join("");
+    const msHtml=w.milestones.map(m=>`<div class="ms-item"><i class="ti ti-trophy" style="font-size:14px;color:#BA7517" aria-hidden="true"></i>${m}</div>`).join("");
+    const div=document.createElement("div");
+    div.className="week";
+    div.dataset.phase=w.phase;
+    div.innerHTML=`
+      <div class="week-hdr" onclick="toggle('${w.id}')">
+        <div class="week-left">
+          ${pill}
+          <div class="week-info">
+            <div class="week-num">${w.num}</div>
+            <div class="week-title">${w.title}</div>
+            <div class="week-obj">${w.obj}</div>
+          </div>
+        </div>
+        <i class="ti ti-chevron-down chev" id="cv-${w.id}" aria-hidden="true"></i>
+      </div>
+      <div class="week-body" id="bd-${w.id}">
+        <div class="explanation">
+          <div class="exp-title">Week breakdown</div>
+          <div class="exp-grid">
+            <div class="exp-card">
+              <div class="exp-card-title"><i class="ti ti-help-circle" style="font-size:13px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>Why this week</div>
+              <div class="exp-card-body">${e.why}</div>
+            </div>
+            <div class="exp-card">
+              <div class="exp-card-title"><i class="ti ti-list-check" style="font-size:13px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>What you will do</div>
+              <div class="exp-card-body">${e.what}</div>
+            </div>
+            <div class="exp-card">
+              <div class="exp-card-title"><i class="ti ti-target" style="font-size:13px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>Expected outcome</div>
+              <div class="exp-card-body">${e.outcome}</div>
+            </div>
+          </div>
+          <div class="focus-bar">${focusTags}</div>
+        </div>
+        <div class="days-section">${daysHtml}</div>
+        <div class="milestones">${msHtml}</div>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+
+function toggle(id){
+  const bd=document.getElementById("bd-"+id);
+  const cv=document.getElementById("cv-"+id);
+  const open=bd.style.display==="none"||bd.style.display==="";
+  bd.style.display=open?"block":"none";
+  cv.classList.toggle("open",open);
+}
+
+function filter(f,btn){
+  document.querySelectorAll(".fbtn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  render(f);
+}
+
+render("all");
+</script>
