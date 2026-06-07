@@ -86,7 +86,7 @@
 
   .page-body { padding: 1.75rem 2rem 2rem; }
 
-  .tna { font-size: 14px; }
+  .page-body { padding: 1.75rem 2rem 2rem; }
 
   .top-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.5rem; }
   .stat { border-radius: var(--border-radius-md); padding: .875rem 1rem; border: none; }
@@ -146,7 +146,18 @@
   .day-row:last-child { border-bottom: none; }
   .day-label { padding: 10px 12px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); background: #f5f3ef; border-right: 1px solid var(--color-border-tertiary); }
   .day-tasks { padding: 8px 12px; display: flex; flex-direction: column; gap: 5px; }
-  .task-item { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: var(--color-text-primary); line-height: 1.5; }
+
+  /* Task row */
+  .task-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--color-text-primary); line-height: 1.5; cursor: pointer; padding: 3px 4px; border-radius: 5px; transition: background .12s; }
+  .task-item:hover { background: #f0ede7; }
+  .task-item.done { opacity: .55; }
+  .task-item.done .task-text { text-decoration: line-through; color: var(--color-text-tertiary); }
+
+  /* Custom checkbox */
+  .task-cb { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--color-border-primary); background: #fff; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: background .15s, border-color .15s; }
+  .task-item.done .task-cb { background: #1D9E75; border-color: #1D9E75; }
+  .task-item.done .task-cb::after { content: ''; display: block; width: 4px; height: 7px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px,-1px); }
+
   .tdot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
   .tprod { background: #1D9E75; }
   .tcont { background: #378ADD; }
@@ -154,6 +165,12 @@
   .tout { background: #7F77DD; }
   .tadm { background: #888780; }
   .task-time { font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; margin-left: auto; padding-left: 8px; flex-shrink: 0; }
+
+  /* Progress bar per week */
+  .week-progress { padding: 0 16px 10px; background: var(--color-background-primary); }
+  .progress-track { height: 4px; background: #e8e3da; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: #1D9E75; transition: width .3s ease; }
+  .progress-label { font-size: 10px; color: var(--color-text-tertiary); margin-top: 4px; letter-spacing: .3px; }
 
   .milestones { padding: 10px 16px; background: #fdf6e8; border-top: 1px solid #f0e4c0; display: flex; flex-direction: column; gap: 5px; }
   .ms-item { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: #6b4c0f; }
@@ -553,6 +570,40 @@ days:[
 milestones:["90-day review complete — report back to CEO","$800–1,200 monthly revenue confirmed","Month 4 plan locked in"]},
 ];
 
+// ── Persistence ──────────────────────────────────────────────
+const STORE_KEY = 'bundleco_ticks';
+function loadTicks(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); }catch(e){ return {}; } }
+function saveTicks(t){ localStorage.setItem(STORE_KEY, JSON.stringify(t)); }
+let ticks = loadTicks();
+
+// ── Progress ──────────────────────────────────────────────────
+function weekTotal(w){ return w.days.reduce((n,d)=>n+d.tasks.length,0); }
+
+function countDone(weekId, total){
+  let n=0;
+  for(let i=0;i<total;i++) if(ticks[weekId+':'+i]) n++;
+  return n;
+}
+
+function updateWeekProgress(weekId, total){
+  const bar   = document.getElementById('pf-'+weekId);
+  const label = document.getElementById('pl-'+weekId);
+  const badge = document.getElementById('hb-'+weekId);
+  if(!bar) return;
+  const done = countDone(weekId, total);
+  const pct  = total ? Math.round(done/total*100) : 0;
+  bar.style.width = pct+'%';
+  bar.style.background = pct===100 ? '#BA7517' : '#1D9E75';
+  label.textContent = done+' / '+total+' tasks complete';
+  if(badge){
+    badge.textContent = pct===100 ? '✓ All done' : done+'/'+total;
+    badge.style.background = pct===100 ? '#fdf6e8' : '#f0f0f0';
+    badge.style.color = pct===100 ? '#BA7517' : '#888780';
+    badge.style.borderColor = pct===100 ? '#f0e4c0' : '#ddd';
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────
 const dotClass={prod:"tprod",cont:"tcont",plat:"tplat",out:"tout",adm:"tadm"};
 
 function render(f){
@@ -561,18 +612,28 @@ function render(f){
   W.filter(w=>f==="all"||w.phase===f).forEach(w=>{
     const pill=w.phase==="p1"?'<span class="phase-pill p1-pill">Phase 1</span>':w.phase==="p2"?'<span class="phase-pill p2-pill">Phase 2</span>':'<span class="phase-pill p3-pill">Phase 3</span>';
     const e=w.explanation;
-    const focusTags=w.focus.map(f=>`<span class="focus-tag">${f}</span>`).join("");
+    const focusTags=w.focus.map(ft=>`<span class="focus-tag">${ft}</span>`).join("");
+    const total=weekTotal(w);
+
+    // flatten all tasks with a single global index per week
+    let gi=0;
     const daysHtml=w.days.map(d=>`
       <div class="day-row">
         <div class="day-label">${d.label}</div>
-        <div class="day-tasks">${d.tasks.map(t=>`
-          <div class="task-item">
-            <div class="tdot ${dotClass[t.type]||"tadm"}"></div>
-            <span>${t.text}</span>
+        <div class="day-tasks">${d.tasks.map(t=>{
+          const idx=gi++;
+          const key=w.id+':'+idx;
+          const done=!!ticks[key];
+          return `<div class="task-item${done?' done':''}" data-wid="${w.id}" data-idx="${idx}" data-total="${total}">
+            <div class="task-cb"></div>
+            <div class="tdot ${dotClass[t.type]||'tadm'}"></div>
+            <span class="task-text">${t.text}</span>
             <span class="task-time">${t.time}</span>
-          </div>`).join("")}
+          </div>`;
+        }).join("")}
         </div>
       </div>`).join("");
+
     const msHtml=w.milestones.map(m=>`<div class="ms-item"><i class="ti ti-trophy ms-icon"></i>${m}</div>`).join("");
     const div=document.createElement("div");
     div.className="week";
@@ -587,9 +648,16 @@ function render(f){
             <div class="week-obj">${w.obj}</div>
           </div>
         </div>
-        <i class="ti ti-chevron-down chev" id="cv-${w.id}"></i>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="hb-${w.id}" style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;border:1px solid #ddd;background:#f0f0f0;color:#888780;white-space:nowrap">0/${total}</span>
+          <i class="ti ti-chevron-down chev" id="cv-${w.id}"></i>
+        </div>
       </div>
       <div class="week-body" id="bd-${w.id}">
+        <div class="week-progress">
+          <div class="progress-track"><div class="progress-fill" id="pf-${w.id}" style="width:0%"></div></div>
+          <div class="progress-label" id="pl-${w.id}">0 / ${total} tasks complete</div>
+        </div>
         <div class="explanation">
           <div class="exp-title">Week breakdown</div>
           <div class="exp-grid">
@@ -612,6 +680,21 @@ function render(f){
         <div class="milestones">${msHtml}</div>
       </div>`;
     c.appendChild(div);
+    updateWeekProgress(w.id, total);
+  });
+
+  // ── Single delegated listener on the whole list ──
+  c.addEventListener('click', function(e){
+    const item = e.target.closest('.task-item');
+    if(!item) return;
+    const wid   = item.dataset.wid;
+    const idx   = item.dataset.idx;
+    const total = parseInt(item.dataset.total);
+    const key   = wid+':'+idx;
+    ticks[key]  = !ticks[key];
+    saveTicks(ticks);
+    item.classList.toggle('done', !!ticks[key]);
+    updateWeekProgress(wid, total);
   });
 }
 
